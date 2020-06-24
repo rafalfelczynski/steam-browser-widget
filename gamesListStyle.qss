@@ -1,0 +1,118 @@
+QWidget#parent {
+    border: 3px solid #ffffff;
+    border-radius: 8px;
+    background-color: #111111;
+}
+
+QComboBox#letters {
+    border: 2px solid white;
+    border-radius: 8px;
+    background-color: #111111;
+    color: #ffffff;
+    font: "Times New Roman";
+    font-size: 15px;
+    padding-left: 5px;
+}
+
+QComboBox#letters::drop-down {
+    background-color: #111111;
+    border: 1px solid white;
+    color: #ffffff;
+}
+
+QComboBox#letters::down-arrow {
+    image: url(:/img/images/arrowu.png);
+    width: 10px;
+    height: 30px;
+}
+
+QComboBox#letters::down-arrow:on {
+    image: url(:/img/images/arrowd.png);
+}
+
+QComboBox QAbstractItemView#lettersView {
+    show-decoration-selected: 1;
+    border: 2px solid white;
+    background-color: #111111;
+    outline: none;
+    color: #ffffff;
+    font: "Times New Roman";
+    font-size: 15px;
+    padding-left: 5px;
+}
+
+QComboBox#games {
+    border: 3px solid white;
+    border-radius: 8px;
+    background-color: #111111;
+    color: #ffffff;
+    font: "Times New Roman";
+    font-size: 15px;
+    padding-left: 5px;
+}
+
+QComboBox#games::drop-down {
+    border: 1px solid white;
+    background-color: #111111;
+    color: #ffffff;
+}
+
+QComboBox#games::down-arrow {
+    image: url(:/img/images/arrowu.png);
+    width: 10px;
+    height: 30px;
+}
+
+QComboBox#games::down-arrow:on {
+    image: url(:/img/images/arrowd.png);
+}
+
+QComboBox QAbstractItemView#gamesView {
+    show-decoration-selected: 1;
+    border: 2px solid white;
+    background-color: #111111;
+    outline: none;
+    color: #ffffff;
+    font: bold "Times New Roman";
+    font-size: 15px;
+    padding-left: 5px;
+}
+
+QPushButton#okBtn {
+    color: #ffffff;
+    border-radius: 10px;
+    border: 2px solid white;
+    background-color: qlineargradient(x1: 0.5, y1: 0, x2: 0.5, y2: 1,
+    stop: 0 white,
+    stop: 0.3 lightgray,
+    stop: 0.6 gray,
+    stop: 0.9 darkgray
+    stop: 1 black);
+    font: bold "Times New Roman";
+    font-size: 15px;
+}
+
+QPushButton#okBtn:pressed {
+    border-style: inset;
+    background-color: qlineargradient(x1: 0.5, y1: 0, x2: 0.5, y2: 1,
+    stop: 0 black,
+    stop: 0.2 darkgray,
+    stop: 0.5 gray,
+    stop: 0.8 lightgray
+    stop: 1 white);
+}
+
+QTextEdit#priceField {
+    color: white;
+    border-radius: 10px;
+    background-color: #111111;
+    border: 2px solid white;
+    font: bold italic "Times New Roman";
+    font-size: 15px;
+}
+
+QLabel#infoLbl {
+    color: white;
+    font: italic "Times New Roman";
+    font-size: 15px;
+}

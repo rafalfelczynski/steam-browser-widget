@@ -18,7 +18,8 @@ PopupList::PopupList(QWidget *parent) : QWidget(parent)
 	limitField = new QTextEdit(this);
 	priceLabel = new QLabel(this);
 	limitLabel = new QLabel(this);
-	createLayout();
+	wasCreated = false;
+	//createLayout();
 }
 
 PopupList::~PopupList()
@@ -28,6 +29,10 @@ PopupList::~PopupList()
 
 void PopupList::show()
 {
+	if(!wasCreated){
+		createLayout();
+	}
+	setAppPrice();
 	this->QWidget::show();
 }
 
@@ -102,25 +107,30 @@ void PopupList::createLayout()
 	priceLabel->setText("price");
 	QObject::connect(subsList, QOverload<int>::of(&QComboBox::currentIndexChanged),
 					 this, &PopupList::setAppPrice);
-	//subsList->setCurrentIndex(0);
+	wasCreated = true;
 }
 
 void PopupList::delClicked()
 {
-		this->hide();
-		int appid = subsList->itemData(subsList->currentIndex()).toList()[0].toInt();
-		emit subDelClicked(appid);
+	this->hide();
+	int appid = subsList->itemData(subsList->currentIndex()).toList()[0].toInt();
+	emit subDelClicked(appid);
 
 }
 
 void PopupList::setAppPrice()
 {
-	int index = subsList->currentIndex();
-	QVariantList li = subsList->itemData(index).toList();
-	if(index >=0 && index < li.size()){
+	qDebug() << "index changed, setting price. popup list";
+	if(subsList->currentIndex() < 0){
+		subsList->setCurrentIndex(0);
+	}else{
+		int index = subsList->currentIndex();
+		QVariantList li = subsList->itemData(index).toList();
 		double pri = li[1].toDouble();
 		priceField->setText(pri > 0 ? QString::number(pri) : "FREE");
 		limitField->setText(QString::number(li[2].toDouble()));
+
+		qDebug() << pri << li[2];
 	}
 }
 

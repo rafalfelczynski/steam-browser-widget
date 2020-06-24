@@ -89,7 +89,7 @@ void Controller::start()
 void Controller::connectionChecked(QNetworkReply* reply)
 {
 	if(reply->error() == QNetworkReply::NoError){
-		qDebug() << "polaczenie ok";
+		qDebug() << "polaczenie z netem ok";
 		start();
 	}else{
 		qDebug() << "brak polaczenia z internetem";

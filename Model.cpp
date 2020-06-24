@@ -36,9 +36,9 @@ void Model::startFetchingData()
 					 this, &Model::updateSubsGamePrice);
 	QObject::connect(steamConnector, &SteamConnector::ifGameChecked,
 					 this, &Model::updateIfIsGame);
-	fetchAllAppsFromSteam();
-	fetchPricesForSubs();
-	checkAppsIfAreGames();
+	//fetchAllAppsFromSteam();
+	//fetchPricesForSubs();
+	//checkAppsIfAreGames();
 }
 
 /*============================================================
@@ -155,12 +155,16 @@ void Model::updateSubsGamePrice(QPair<int, double> *game) // called when price w
 {
 	qDebug() << "price received" <<game->first <<game->second;
 	//if(game->second != kod zwracany jesli steam przekroczy? limit zapyta?){} // zaimplemetowac
-	db->updateSubsGamePrice(*game);
-	subsChanged = true;
+	if(game->second != SteamConnector::Codes::SteamFailure){
+		qDebug() << "rozne, updatuj";
+		db->updateSubsGamePrice(*game);
+		subsChanged = true;
+	}
 }
 
 void Model::updateIfIsGame(QPair<int,int> *game) // called when game-check was received
 {
+	qDebug() << "update if is game" <<"id gry:"<<game->first<<"kod z konektora:"<<game->second;
 	if(game->second == SteamConnector::Codes::Game){
 		db->insertTestedGame(game->first);
 		db->deleteNotTestedApp(game->first);
@@ -169,7 +173,10 @@ void Model::updateIfIsGame(QPair<int,int> *game) // called when game-check was r
 		//notTestedChanged = true;
 	}else if(game->second == SteamConnector::Codes::NotGame){
 		db->deleteNotTestedApp(game->first);
+		qDebug() <<"nie gra, usuwanie";
 		//notTestedChanged = true;
+	}else{
+		qDebug() <<"blad steama";
 	}
 }
 

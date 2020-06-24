@@ -3,7 +3,7 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QRegExp>
-#include <iostream>
+#include <QDebug>
 
 JsonParser::JsonParser(QObject *parent) : QObject(parent)
 {
@@ -42,7 +42,7 @@ QPair<int, double> *JsonParser::getAppPrice(const QByteArray& res, const QString
 	QJsonObject obj = QJsonDocument::fromJson(res).object()
 			.take(appid).toObject();
 	bool suc = obj.take("success").toBool();
-	QPair<int, double> *pricePair = new QPair<int,double>{appid.toInt(),-1};
+	QPair<int, double> *pricePair = new QPair<int,double>{appid.toInt(), Codes::SteamFailure};
 	if(suc){
 		obj = obj.take("data").toObject();
 		if(obj.take("type").toString() == "game"){
@@ -52,6 +52,8 @@ QPair<int, double> *JsonParser::getAppPrice(const QByteArray& res, const QString
 			}else{
 				pricePair->second = 0;
 			}
+		}else{
+			pricePair->second = Codes::NotGame;
 		}
 
 	}
@@ -62,16 +64,21 @@ QPair<int, int>* JsonParser::checkIfIsGame(const QByteArray& res, const QString&
 {
 	QJsonObject obj = QJsonDocument::fromJson(res).object()
 			.take(appid).toObject();
-	QPair<int, int> *pricePair = new QPair<int, int>(appid.toInt(),-10); // if -10 returned, means steam not allowed data fetch
+	QPair<int, int> *pricePair = new QPair<int, int>(appid.toInt(),Codes::SteamFailure); // if -10 returned, means steam not allowed data fetch
 	if(!obj.isEmpty()){
 		bool suc = obj.take("success").toBool();
-		pricePair->second = -1; //if -1 returned, means no success or just not a game
 		if(suc){
 			obj = obj.take("data").toObject();
 			if(obj.take("type").toString() == "game"){
-				pricePair->second = 0;
+				pricePair->second = Codes::Game;
+			}else{
+				pricePair->second = Codes::NotGame;
 			}
+		}else{
+			pricePair->second = Codes::NotGame;
 		}
+	}else{
+		qDebug()<<"Empty";
 	}
 	return pricePair;
 }

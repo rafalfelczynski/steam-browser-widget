@@ -7,14 +7,23 @@
 #include <QFont>
 #include <QEvent>
 #include <QRegExp>
+#include <QScreen>
+#include <QDebug>
+#include <QFile>
+#include <QStyledItemDelegate>
+#include <QPalette>
+#include <QAbstractItemView>
+#include <QLabel>
 
 Popup::Popup(QWidget *parent) : QWidget(parent)
 {
 	gamesList = new QComboBox(this);
-	nameField = new QComboBox(this);
+	letterBox = new QComboBox(this);
 	priceField = new QTextEdit(this);
-	okBtn = new QPushButton("OK", this);
-	createLayout();
+	okBtn = new QPushButton("ADD", this);
+	infoLbl = new QLabel(this);
+	wasCreated = false;
+	//createLayout();
 }
 
 Popup::~Popup()
@@ -24,13 +33,18 @@ Popup::~Popup()
 
 void Popup::show()
 {
+	if(!wasCreated){
+		createLayout();
+	}
+	setAppsSubset();
 	this->QWidget::show();
 }
 
 void Popup::refreshGames(QList<QPair<int, QString>>* gamesNames)
 {
+	qDebug() << "refreshing games. popup";
 	divideApps(gamesNames);
-	setAppsSubset();
+	//setAppsSubset();
 }
 
 void Popup::changeEvent(QEvent *event)
@@ -42,44 +56,61 @@ void Popup::changeEvent(QEvent *event)
 
 void Popup::createLayout()
 {
+	qDebug() << "create layout";
 	setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
 	QPair<int, int> *winPos = determineTaskbarGeom();
 	this->setGeometry(winPos->first, winPos->second, WINDOW_WIDTH, WINDOW_HEIGHT);
-	nameField->setGeometry(MARGIN_WIDTH * WINDOW_WIDTH,
-						   MARGIN_HEIGHT * WINDOW_HEIGHT,
-						   (1 - 3 * MARGIN_WIDTH) * WINDOW_WIDTH * 0.8,
-						   WINDOW_HEIGHT * 0.425);
-	gamesList->setGeometry(MARGIN_WIDTH * WINDOW_WIDTH,
-						   nameField->y() + nameField->height() + MARGIN_HEIGHT * WINDOW_HEIGHT,
-						   nameField->width(),
-						   nameField->height());
+	infoLbl->setGeometry(MARGIN_WIDTH * WINDOW_WIDTH,
+						 MARGIN_HEIGHT * WINDOW_HEIGHT,
+						 (1 - 2 * MARGIN_WIDTH) * WINDOW_WIDTH * 0.50,
+						 WINDOW_HEIGHT * 0.425);
+	letterBox->setGeometry(infoLbl->x() + infoLbl->width() + MARGIN_WIDTH * WINDOW_WIDTH,
+						   infoLbl->y(),
+						   (1 - 2 * MARGIN_WIDTH) * WINDOW_WIDTH * 0.2,
+						   infoLbl->height());
+	gamesList->setGeometry(infoLbl->x(),
+						   letterBox->y() + letterBox->height() + MARGIN_HEIGHT * WINDOW_HEIGHT,
+						   letterBox->width() + infoLbl->width() + MARGIN_WIDTH * WINDOW_WIDTH,
+						   letterBox->height());
 	priceField->setGeometry(gamesList->x() + gamesList->width() + MARGIN_WIDTH * WINDOW_WIDTH,
 							MARGIN_HEIGHT * WINDOW_HEIGHT,
-							(1 - 3 * MARGIN_WIDTH) * WINDOW_WIDTH * 0.2,
+							(1 - 2 * MARGIN_WIDTH) * WINDOW_WIDTH * 0.2,
 							WINDOW_HEIGHT * 0.425);
 	okBtn->setGeometry(priceField->x(),
 					   priceField->y() + priceField->height() + MARGIN_HEIGHT * WINDOW_HEIGHT,
 					   priceField->width(),
 					   priceField->height());
+	this->setObjectName("parent");
+	letterBox->setObjectName("letters");
+	letterBox->view()->setObjectName("lettersView");
+	gamesList->setObjectName("games");
+	gamesList->view()->setObjectName("gamesView");
+	priceField->setObjectName("priceField");
+	okBtn->setObjectName("okBtn");
+	infoLbl->setObjectName("infoLbl");
+	QFile style(":/styles/gamesListStyle.qss");
+	style.open(QFile::ReadOnly);
+	this->setStyleSheet(style.readAll());
+	style.close();
 	QObject::connect(okBtn, &QPushButton::pressed, this, &Popup::okClicked);
-	QFont font = QFont("Times", 13);
-	nameField->setFont(font);
-	priceField->setAlignment(Qt::AlignLeft);
-	priceField->setFont(font);
+	infoLbl->setWordWrap(true);
+	infoLbl->setText("Choose a letter to see related games");
 	priceField->setPlaceholderText("Price");
 	addLetters();
-	nameField->setCurrentIndex(0);
-	QObject::connect(nameField, QOverload<int>::of(&QComboBox::currentIndexChanged),
+	letterBox->setCurrentIndex(0);
+	QObject::connect(letterBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
 					 this, &Popup::setAppsSubset);
+	wasCreated = true;
 }
 
 void Popup::addLetters()
 {
-	nameField->clear();
+	letterBox->clear();
 	for(char i=65;i<=90;i++){
 		QChar ch(i);
-		nameField->addItem(ch);
+		letterBox->addItem(ch);
 	}
+	//nameField->setCurrentIndex(-1);
 }
 
 void Popup::divideApps(QList<QPair<int,QString>>* gamesNames)
@@ -100,9 +131,12 @@ void Popup::divideApps(QList<QPair<int,QString>>* gamesNames)
 
 void Popup::setAppsSubset()
 {
-	if(nameField->currentIndex() >= 0){
+	qDebug() << "setappsubset";
+	if(letterBox->currentIndex() < 0){
+		letterBox->setCurrentIndex(0);
+	}else{
 		gamesList->clear();
-		QChar ch = nameField->itemText(nameField->currentIndex()).at(0);
+		QChar ch = letterBox->itemText(letterBox->currentIndex()).at(0);
 		// games are sorted
 		QList<QPair<int,QString>> *list = nullptr;
 		if(65 <= ch && ch <= 90){
@@ -118,27 +152,9 @@ void Popup::setAppsSubset()
 	}
 }
 
-void Popup::okClicked(){
-	QRegExp regex("[0-9]+");
-	QString s = priceField->toPlainText();
-	if(s != "" && regex.exactMatch(s)){
-		this->hide();
-		const QVariant &appid = gamesList->itemData(gamesList->currentIndex());
-		emit subAddClicked({appid.toInt(), priceField->toPlainText().toDouble()});
-	}else{
-		QTimer tim;
-		QTimer::singleShot(10, this,
-							[&](){priceField
-							->setStyleSheet("background-color: red");});
-		QTimer::singleShot(1000, this,
-							[&](){priceField
-							->setStyleSheet("background-color: white");});
-	}
-}
-
 QPair<int, int>* Popup::determineTaskbarGeom(){
-	QDesktopWidget *desktop = QApplication::desktop();
-	QRect all = desktop->screenGeometry();
+	QScreen *desktop = QGuiApplication::screens()[0];
+	QRect all = desktop->geometry();
 	QRect avail = desktop->availableGeometry();
 	QPair<int, int> *result = new QPair<int, int>();
 	if(avail.x() > 0){ // left
@@ -155,6 +171,35 @@ QPair<int, int>* Popup::determineTaskbarGeom(){
 		result->second = avail.height()- WINDOW_HEIGHT;
 	}
 	return result;
+}
+
+QString Popup::priceStyleSheetChangeColor(const QString &color){
+	return "QTextEdit#priceField {"
+		   " color: white;"
+		   " border-radius: 10px;"
+		   " background-color: "+color+";"
+		   " border: 2px solid white;"
+		   " font: bold italic \"Times New Roman\";"
+		   " font-size: 15px;}";
+}
+
+void Popup::okClicked(){
+	qDebug() <<"clicked";
+	QRegExp regex("[0-9]+");
+	QString s = priceField->toPlainText();
+	if(s != "" && regex.exactMatch(s)){
+		this->hide();
+		const QVariant &appid = gamesList->itemData(gamesList->currentIndex());
+		emit subAddClicked({appid.toInt(), priceField->toPlainText().toDouble()});
+	}else{
+		QTimer tim;
+		QTimer::singleShot(10, this,
+							[&](){priceField
+							->setStyleSheet(priceStyleSheetChangeColor("red"));});
+		QTimer::singleShot(1000, this,
+							[&](){priceField
+							->setStyleSheet(priceStyleSheetChangeColor("#111111"));});
+	}
 }
 
 

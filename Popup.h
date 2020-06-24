@@ -8,6 +8,7 @@
 #include <QList>
 #include <QThread>
 #include <Triple.h>
+#include <QLabel>
 
 const float WINDOW_WIDTH = 350;
 const float WINDOW_HEIGHT = 100;
@@ -24,8 +25,10 @@ public:
 	void refreshGames(QList<QPair<int,QString>>* gamesNames);
 	void changeEvent(QEvent *event) override;
 private:
+	bool wasCreated;
+	QLabel *infoLbl;
 	QPushButton *okBtn;
-	QComboBox *nameField;
+	QComboBox *letterBox;
 	QTextEdit *priceField;
 	QComboBox *gamesList;
 	QList<QPair<int, QString>> bins[26];
@@ -34,6 +37,7 @@ private:
 	void divideApps(QList<QPair<int,QString>>* gamesNames);
 	void setAppsSubset();
 	QPair<int, int>* determineTaskbarGeom();
+	QString priceStyleSheetChangeColor(const QString &color);
 private slots:
 	void okClicked();
 signals:

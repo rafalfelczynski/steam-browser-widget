@@ -1,6 +1,7 @@
 #include "SearcherView.h"
 #include <QAction>
 #include <iostream>
+#include <QDebug>
 
 
 SearcherView::SearcherView()
@@ -25,7 +26,8 @@ SearcherView::~SearcherView()
 void SearcherView::start()
 {
 	createMenu();
-	icon->setIcon(QIcon(":/res/images/heart.png"));
+	icon->setIcon(QIcon(":/img/images/heart.png"));
+	qDebug() <<"shown";
 	icon->show();
 }
 

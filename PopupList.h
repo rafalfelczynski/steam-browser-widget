@@ -24,6 +24,7 @@ public:
 	void refreshSubsGames(QList<Tetrad<int, double, double, QString>> *subsGames);
 	void changeEvent(QEvent *event) override;
 private:
+	bool wasCreated;
 	QList<Tetrad<int, double, double, QString>> *subsGames;
 	QComboBox *subsList;
 	QPushButton *delBtn;

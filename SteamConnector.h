@@ -20,11 +20,7 @@ class SteamConnector : public QObject
 {
 	Q_OBJECT
 public:
-	enum Codes{
-		Game=0,
-		NotGame=-1,
-		SteamFailure=-1
-	};
+	typedef JsonParser::Codes Codes;
 	explicit SteamConnector(QNetworkAccessManager *netMan, QObject *parent = nullptr);
 	~SteamConnector();
 	void sendFetchAllAppsReq();

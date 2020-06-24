@@ -21,6 +21,11 @@ class JsonParser : public QObject
 {
 	Q_OBJECT
 public:
+	enum Codes {
+		Game=0,
+		NotGame=-1,
+		SteamFailure=-10
+	};
 	explicit JsonParser(QObject *parent = nullptr);
 	~JsonParser();
 	QList<QPair<int,QString>> *getAppsDataFromJson(const QByteArray &obj, int limit);

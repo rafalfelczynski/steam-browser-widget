@@ -38,8 +38,6 @@ HEADERS += \
     Tetrad.h \
     Triple.h
 
-FORMS += \
-    MainWindow.ui
 
 TRANSLATIONS += \
     QtSteamBrowser_pl_PL.ts
@@ -50,11 +48,11 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
-	Qt5Svg.dll \
+	gamesListStyle.qss \
 	iconengines/qsvgicon.dll \
-	images/bad.png \
-	images/heart.png \
-	images/trash.png
+	images/heart.png
 
 RESOURCES += \
-	systray.qrc
+	res.qrc \
+
+FORMS +=
