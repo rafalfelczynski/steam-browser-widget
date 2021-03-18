@@ -5,16 +5,18 @@
 Model::Model(GameRepository *gameRepository, SteamConnector *steamConnector)
 	: gameRepo(gameRepository), steamConnector(steamConnector)
 {
+	QObject::connect(steamConnector, &SteamConnector::allAppsReady, this, &Model::updateAllApps);
+	QObject::connect(steamConnector, &SteamConnector::priceReceived, this, &Model::updateSubsGamePrice);
+	QObject::connect(steamConnector, &SteamConnector::verifiedAsAGame, this, &Model::saveAppAsAGame);
+	QObject::connect(steamConnector, &SteamConnector::verifiedAsNotAGame, this, &Model::deleteAppFromList);
 }
 
 void Model::startFetchingData()
 {
-	gameRepo->start();
+	steamConnector->sendFetchAllAppsReq();
 	testedGames = gameRepo->getTestedGames();
 	subsGames = gameRepo->getSubsGames();
-	QObject::connect(steamConnector.get(), &SteamConnector::allAppsReady, this, &Model::updateAllApps);
-	QObject::connect(steamConnector.get(), &SteamConnector::priceReceived, this, &Model::updateSubsGamePrice);
-	QObject::connect(steamConnector.get(), &SteamConnector::ifGameChecked, this, &Model::updateIfIsGame);
+	checkAppsIfAreGames();
 }
 
 void Model::insertSubsGame(const QPair<int, double> &game)
@@ -67,10 +69,11 @@ void Model::fetchPricesForSubs()
 	QTimer::singleShot(3600000, this, &Model::fetchPricesForSubs); // fetch every hour
 }
 
-void Model::checkAppsIfAreGames() // evey 5 minute check remaining apps if the are games or not (videos or whatever)
+void Model::checkAppsIfAreGames() // every 5 minutes check remaining apps if the are games or not (videos or whatever)
 {
+	qDebug() << "checking apps if are games";
 	QVector<App> notTestedApps = gameRepo->getNotTestedApps();
-	int steamLimit = notTestedApps.size() > 150 ? 150 : notTestedApps.size(); // 200 really, but let's take a half
+	int steamLimit = notTestedApps.size() > 150 ? 150 : notTestedApps.size(); // 200 really, but let's take less than that
 	for(int i = 0; i < steamLimit; i++) {
 		steamConnector->sendCheckIfIsGameReq(notTestedApps[i].id);
 	}
@@ -79,7 +82,14 @@ void Model::checkAppsIfAreGames() // evey 5 minute check remaining apps if the a
 
 void Model::updateAllApps(const QVector<App> &newApps) // called when all apps were received
 {
+	qDebug() << "all apps:" << newApps.size();
 	static int tries = 0;
+	if(tries++ < 5 && newApps.size() == 0) { // if nothing fethed from steam server, try 5 times max
+		steamConnector->sendFetchAllAppsReq();
+		return;
+	} else {
+		tries = 0;
+	}
 	gameRepo->many();
 	for(auto &app: newApps) {
 		if(!gameRepo->isKnownApp(app)) {
@@ -88,31 +98,24 @@ void Model::updateAllApps(const QVector<App> &newApps) // called when all apps w
 		}
 	}
 	gameRepo->endMany();
-	if(tries++ < 5 && newApps.size() == 0) { // if nothing fethed from steam server, try 5 times max
-		steamConnector->sendFetchAllAppsReq();
-	} //allChanged = true;
-	//notTestedChanged = true;
 }
 
-void Model::updateSubsGamePrice(const Game &game) // called when price was received
+void Model::updateSubsGamePrice(int appid, double price) // called when price was received
 {
 	//if(game->second != kod zwracany jesli steam przekroczy? limit zapyta?){} // zaimplemetowac
-	if(game.limit != SteamConnector::Codes::SteamFailure) {
-		qDebug() << "rozne, updatuj";
-		gameRepo->updateSubsGamePrice(game);
-		subsChanged = true;
-	}
+	gameRepo->updateSubsGamePrice(appid, price);
+	subsChanged = true;
 }
 
-void Model::updateIfIsGame(QPair<int, int> *game) // called when game-check was received
+void Model::saveAppAsAGame(int appId)
 {
-	if(game->second == SteamConnector::Codes::Game) {
-		gameRepo->insertTestedGame(game->first);
-		gameRepo->deleteNotTestedApp(game->first);
-		testedChanged = true;
-	} else if(game->second == SteamConnector::Codes::NotGame) {
-		gameRepo->deleteNotTestedApp(game->first);
-	} else {
-		qDebug() << "blad steama";
-	}
+	qDebug() << "new game arrived";
+	gameRepo->insertTestedGame(appId);
+	gameRepo->deleteNotTestedApp(appId);
+	testedChanged = true;
+}
+
+void Model::deleteAppFromList(int appId)
+{
+	gameRepo->deleteNotTestedApp(appId);
 }

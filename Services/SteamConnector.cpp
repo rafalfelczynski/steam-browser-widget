@@ -15,7 +15,7 @@ SteamConnector::SteamConnector(const QSharedPointer<QNetworkAccessManager> &netw
 
 void SteamConnector::sendFetchAllAppsReq()
 {
-	QNetworkRequest req((QUrl(ALL_GAMES_ENDPOINT)));
+	QNetworkRequest req({ALL_GAMES_ENDPOINT});
 	QNetworkReply *stream = netMan->get(req);
 	QObject::connect(stream, &QNetworkReply::finished, [=]() -> void { this->recReplyAll(stream); });
 }
@@ -43,8 +43,7 @@ void SteamConnector::recReplyAll(QNetworkReply *reply)
 	if(res.size() == 23) {
 		std::cout << "zawartosc+" << res.toStdString() << "+" << std::endl;
 	}
-	JsonParser parser;
-	auto apps = parser.getAppsDataFromJson(res, -1);
+	auto apps = JsonParser::getAppsDataFromJson(res, -1);
 	reply->deleteLater();
 	std::cout << "list size steam connector " << apps.size() << std::endl;
 	emit allAppsReady(apps);
@@ -52,33 +51,36 @@ void SteamConnector::recReplyAll(QNetworkReply *reply)
 
 void SteamConnector::recReplyPrice(QNetworkReply *reply, const QString &appid)
 {
-	//std::cout << "appid: " << appid.toStdString() << std::endl;
-	QByteArray res = reply->readAll();
-	auto price = JsonParser().getAppPrice(res, appid);
+	auto price = JsonParser::getAppPrice(reply->readAll(), appid);
 	reply->deleteLater();
-	emit priceReceived(price);
+	if(price.has_value()) {
+		emit priceReceived(appid.toInt(), *price);
+	}
 }
 
 void SteamConnector::recIfIsGame(QNetworkReply *reply, const QString &appid)
 {
-	QByteArray res = reply->readAll();
-	auto check = JsonParser().checkIfIsGame(res, appid);
+	auto code = JsonParser::checkIfIsGame(reply->readAll(), appid);
 	reply->deleteLater();
-	emit ifGameChecked(check);
+	if(code == JsonParser::Game) {
+		emit verifiedAsAGame(appid.toInt());
+	} else if(code == JsonParser::NotGame) {
+		emit verifiedAsNotAGame(appid.toInt());
+	}
 }
 
 void SteamConnector::fetchGamePrice(int appid)
 {
 	QString id = QString::number(appid);
-	QNetworkRequest req((QUrl(SPEC_GAME_ENDPOINT + id)));
-	QNetworkReply *stream = netMan->get(req);
-	QObject::connect(stream, &QNetworkReply::finished, [=]() { this->recReplyPrice(stream, id); });
+	QNetworkRequest req(QUrl(SPEC_GAME_ENDPOINT + id));
+	QNetworkReply *reply = netMan->get(req);
+	QObject::connect(reply, &QNetworkReply::finished, [this, reply, id]() { this->recReplyPrice(reply, id); });
 }
 
 void SteamConnector::checkIfIsGame(int appid)
 {
 	QString id = QString::number(appid);
-	QNetworkRequest req((QUrl(SPEC_GAME_ENDPOINT + id)));
-	QNetworkReply *stream = netMan->get(req);
-	QObject::connect(stream, &QNetworkReply::finished, [=]() { this->recIfIsGame(stream, id); });
+	QNetworkRequest req(QUrl(SPEC_GAME_ENDPOINT + id));
+	QNetworkReply *reply = netMan->get(req);
+	QObject::connect(reply, &QNetworkReply::finished, [this, reply, id]() { this->recIfIsGame(reply, id); });
 }

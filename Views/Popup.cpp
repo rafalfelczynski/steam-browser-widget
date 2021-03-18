@@ -18,6 +18,11 @@
 Popup::Popup(QWidget *parent)
 	: QWidget(parent)
 {
+	infoLbl.setParent(this);
+	okBtn.setParent(this);
+	letterBox.setParent(this);
+	priceField.setParent(this);
+	gamesList.setParent(this);
 	okBtn.setText("ADD");
 	wasCreated = false;
 }

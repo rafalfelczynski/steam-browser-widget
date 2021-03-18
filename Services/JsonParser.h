@@ -1,5 +1,4 @@
-#ifndef JSONPARSER_H
-#define JSONPARSER_H
+#pragma once
 
 #include <QObject>
 #include <QVariant>
@@ -13,9 +12,8 @@
 #include "Models/Game.h"
 #include <optional>
 
-class JsonParser : public QObject
+class JsonParser
 {
-	Q_OBJECT
 public:
 	enum Codes
 	{
@@ -23,10 +21,7 @@ public:
 		NotGame = -1,
 		SteamFailure = -10
 	};
-	explicit JsonParser(QObject *parent = nullptr);
-	QVector<App> getAppsDataFromJson(const QByteArray &obj, int limit);
-	std::optional<double> getAppPrice(const QByteArray &obj, const QString &appid);
-	QPair<int, int> checkIfIsGame(const QByteArray &res, const QString &appid);
+	static QVector<App> getAppsDataFromJson(const QByteArray &obj, int limit);
+	static std::optional<double> getAppPrice(const QByteArray &obj, const QString &appid);
+	static Codes checkIfIsGame(const QByteArray &res, const QString &appid);
 };
-
-#endif // JSONPARSER_H

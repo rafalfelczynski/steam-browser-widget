@@ -5,11 +5,6 @@
 #include <QRegExp>
 #include <QDebug>
 
-JsonParser::JsonParser(QObject *parent)
-	: QObject(parent)
-{
-}
-
 QVector<App> JsonParser::getAppsDataFromJson(const QByteArray &res, int limit)
 {
 	QJsonArray array = QJsonDocument::fromJson(res).object().take("applist").toObject().take("apps").toArray();
@@ -48,24 +43,22 @@ std::optional<double> JsonParser::getAppPrice(const QByteArray &res, const QStri
 	return {};
 }
 
-QPair<int, int> JsonParser::checkIfIsGame(const QByteArray &res, const QString &appid)
+JsonParser::Codes JsonParser::checkIfIsGame(const QByteArray &res, const QString &appid)
 {
-	QJsonObject obj = QJsonDocument::fromJson(res).object().take(appid).toObject();
-	QPair<int, int> pricePair {appid.toInt(), Codes::SteamFailure}; // if -10 returned, means steam not allowed data fetch
+	QJsonObject obj = QJsonDocument::fromJson(res).object()[appid].toObject();
+	JsonParser::Codes code = Codes::SteamFailure; // if -10 returned, means steam not allowed data fetch
 	if(!obj.isEmpty()) {
 		bool suc = obj.take("success").toBool();
 		if(suc) {
 			obj = obj.take("data").toObject();
 			if(obj.take("type").toString() == "game") {
-				pricePair.second = Codes::Game;
+				code = Codes::Game;
 			} else {
-				pricePair.second = Codes::NotGame;
+				code = Codes::NotGame;
 			}
 		} else {
-			pricePair.second = Codes::NotGame;
+			code = Codes::NotGame;
 		}
-	} else {
-		qDebug() << "Empty";
 	}
-	return pricePair;
+	return code;
 }

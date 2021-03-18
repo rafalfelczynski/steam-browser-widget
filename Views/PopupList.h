@@ -5,35 +5,35 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QTextEdit>
-#include <Triple.h>
 #include <QLabel>
-#include <Tetrad.h>
-
-const float WINDOW_WIDTH2 = 500;
-const float WINDOW_HEIGHT2 = 60;
-const float MARGIN_WIDTH2 = 0.01;
-const float MARGIN_HEIGHT2 = 0.02;
+#include "Models/Game.h"
 
 class PopupList : public QWidget
 {
 	Q_OBJECT
+	static constexpr float WINDOW_WIDTH2 = 500.0f;
+	static constexpr float WINDOW_HEIGHT2 = 60.0f;
+	static constexpr float MARGIN_WIDTH2 = 0.01f;
+	static constexpr float MARGIN_HEIGHT2 = 0.02f;
+
 public:
 	explicit PopupList(QWidget *parent = nullptr);
 	~PopupList();
 	void show();
-	void refreshSubsGames(QList<Tetrad<int, double, double, QString>> *subsGames);
+	void refreshSubsGames(const QVector<Game> &subsGames);
 	void changeEvent(QEvent *event) override;
+
 private:
 	bool wasCreated;
-	QList<Tetrad<int, double, double, QString>> *subsGames;
-	QComboBox *subsList;
-	QPushButton *delBtn;
-	QTextEdit *priceField;
-	QTextEdit *limitField;
-	QLabel *priceLabel;
-	QLabel *limitLabel;
+	QVector<Game> subsGames;
+	QComboBox subsList;
+	QPushButton delBtn;
+	QTextEdit priceField;
+	QTextEdit limitField;
+	QLabel priceLabel;
+	QLabel limitLabel;
 	void createLayout();
-	QPair<int, int>* determineTaskbarGeom();
+	QPair<int, int> *determineTaskbarGeom();
 private slots:
 	void delClicked();
 	void setAppPrice();

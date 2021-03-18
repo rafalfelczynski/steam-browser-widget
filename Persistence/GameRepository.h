@@ -16,7 +16,7 @@ static const QString SUBS_GAMES_TAB_NAME = "subs_games";
 class GameRepository
 {
 public:
-	void start();
+	GameRepository();
 	QVector<App> getAllApps();
 	QVector<App> getTestedGames();
 	QVector<App> getNotTestedApps();
@@ -27,7 +27,7 @@ public:
 	bool insertSubsGame(const QPair<int, double> &gameLimit);
 	bool deleteNotTestedApp(const int gameid);
 	bool deleteSubsGame(const int gameid);
-	bool updateSubsGamePrice(const Game &game);
+	bool updateSubsGamePrice(int appid, double price);
 	void many();
 	void endMany();
 	bool isKnownApp(const App &app);

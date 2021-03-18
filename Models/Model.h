@@ -14,7 +14,6 @@ class Model : public QObject
 	Q_OBJECT
 public:
 	Model(GameRepository *gameRepository, SteamConnector *steamConnector);
-	~Model();
 	void startFetchingData();
 public slots:
 	void insertSubsGame(const QPair<int, double> &gameLimit);
@@ -34,8 +33,9 @@ private:
 	void checkAppsIfAreGames();
 private slots:
 	void updateAllApps(const QVector<App> &apps);
-	void updateSubsGamePrice(const Game &game);
-	void updateIfIsGame(QPair<int, int> *game);
+	void updateSubsGamePrice(int appid, double price);
+	void saveAppAsAGame(int appId);
+	void deleteAppFromList(int appId);
 signals:
 	void allAppsReady(const QVector<App> &game);
 	void testedGamesReady(const QVector<App> &game);

@@ -6,7 +6,7 @@
 #include <QSqlResult>
 #include <QElapsedTimer>
 
-void GameRepository::start()
+GameRepository::GameRepository()
 {
 	db = QSqlDatabase::addDatabase("QSQLITE", "conn1"); //tworzy po??czenie z baz?
 	db.setDatabaseName(DB_NAME);
@@ -43,6 +43,7 @@ QVector<App> GameRepository::getTestedGames()
 		apps << App {query.value(0).toInt(),
 					 query.value(1).toString()};
 	}
+	qDebug() << "tested games:" << apps.size();
 	return apps;
 }
 
@@ -106,10 +107,10 @@ bool GameRepository::deleteSubsGame(const int gameid)
 	return del("DELETE FROM subs_games WHERE appid=?", {gameid});
 }
 
-bool GameRepository::updateSubsGamePrice(const Game &game)
+bool GameRepository::updateSubsGamePrice(int appid, double price)
 {
 	return update("UPDATE subs_games SET price=? WHERE appid=?",
-				  {game.price, game.id});
+				  {price, appid});
 }
 
 void GameRepository::many()

@@ -37,8 +37,9 @@ private slots:
 	void recIfIsGame(QNetworkReply *reply, const QString &appid);
 signals:
 	void allAppsReady(const QVector<App> &apps);
-	void priceReceived(const Game &game);
-	void ifGameChecked(const QPair<int, int> &game);
+	void priceReceived(int appid, double price);
+	void verifiedAsAGame(int appId);
+	void verifiedAsNotAGame(int appId);
 };
 
 #endif // STEAMCONNECTOR_H

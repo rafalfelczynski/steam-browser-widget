@@ -25,7 +25,7 @@ void SearcherView::createMenu()
 	QObject::connect(action, &QAction::triggered, this, &SearcherView::quitClicked);
 
 	QObject::connect(&popupWindow, &Popup::subAddClicked, this, &SearcherView::subAddClicked);
-	QObject::connect(popupListWindow, &PopupList::subDelClicked, this, &SearcherView::subDelClicked);
+	QObject::connect(&popupListWindow, &PopupList::subDelClicked, this, &SearcherView::subDelClicked);
 
 	QObject::connect(&icon, &QSystemTrayIcon::activated, this, &SearcherView::iconClicked);
 	menu.show(); // only to calculate width and height on startup
@@ -40,22 +40,17 @@ void SearcherView::fillGamesList(const QVector<App> &testedGames)
 
 void SearcherView::fillSubsGamesList(const QVector<Game> &subsGames)
 {
-	popupListWindow->refreshSubsGames(subsGames);
-	popupListWindow->show();
+	qDebug() << "fill";
+	popupListWindow.refreshSubsGames(subsGames);
+	popupListWindow.show();
 }
 
-/*=================================================================
- *PRIVATE SLOTS
- *PRIVATE SLOTS
- *PRIVATE SLOTS
- *=================================================================
- */
 void SearcherView::iconClicked(QSystemTrayIcon::ActivationReason r)
 {
 	if(r == QSystemTrayIcon::Trigger) {
-		QRect rect = icon->geometry();
-		menu->move(rect.x() + rect.width() / 2,
-				   (rect.y() + rect.height() / 2) - menu->height());
-		menu->show();
+		QRect rect = icon.geometry();
+		menu.move(rect.x() + rect.width() / 2,
+				  (rect.y() + rect.height() / 2) - menu.height());
+		menu.show();
 	}
 }

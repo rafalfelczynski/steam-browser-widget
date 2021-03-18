@@ -10,14 +10,14 @@
 #include <QLabel>
 #include "Models/Game.h"
 
-const float WINDOW_WIDTH = 350;
-const float WINDOW_HEIGHT = 100;
-const float MARGIN_WIDTH = 0.05;
-const float MARGIN_HEIGHT = 0.05;
-
 class Popup : public QWidget
 {
 	Q_OBJECT
+	static constexpr float WINDOW_WIDTH = 350.0f;
+	static constexpr float WINDOW_HEIGHT = 100.0f;
+	static constexpr float MARGIN_WIDTH = 0.05f;
+	static constexpr float MARGIN_HEIGHT = 0.05f;
+
 public:
 	explicit Popup(QWidget *parent = nullptr);
 	void show();

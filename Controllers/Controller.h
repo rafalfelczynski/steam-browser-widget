@@ -20,7 +20,6 @@ class Controller : public QObject
 	Q_OBJECT
 public:
 	Controller();
-	~Controller();
 	void checkConnectionAndStart();
 public slots:
 	void quitClicked();
@@ -28,7 +27,7 @@ public slots:
 private:
 	QScopedPointer<SearcherView> searcherView;
 	QScopedPointer<Model> model;
-	QScopedPointer<QNetworkAccessManager> netMan;
+	QSharedPointer<QNetworkAccessManager> netMan;
 	void start();
 private slots:
 	void connectionChecked(QNetworkReply *reply);

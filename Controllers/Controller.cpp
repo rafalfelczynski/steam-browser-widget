@@ -13,7 +13,7 @@ Controller::Controller()
 {
 	netMan.reset(new QNetworkAccessManager());
 	searcherView.reset(new SearcherView());
-	model.reset(new Model(netMan.get()));
+	model.reset(new Model(new GameRepository(), new SteamConnector(netMan)));
 	QCoreApplication::setOrganizationName(ORG_NAME);
 	QCoreApplication::setApplicationName(APP_NAME);
 }
@@ -37,7 +37,7 @@ void Controller::start()
 	QObject::connect(model.get(), &Model::testedGamesReady, searcherView.get(), &SearcherView::fillGamesList);
 
 	QObject::connect(searcherView.get(), &SearcherView::showClicked, model.get(), &Model::subsListRequested);
-	QObject::connect(model, &Model::subsGamesReady, searcherView, &SearcherView::fillSubsGamesList);
+	QObject::connect(model.get(), &Model::subsGamesReady, searcherView.get(), &SearcherView::fillSubsGamesList);
 
 	QObject::connect(searcherView.get(), &SearcherView::subAddClicked, model.get(), &Model::insertSubsGame);
 	QObject::connect(searcherView.get(), &SearcherView::subDelClicked, model.get(), &Model::deleteSubsGame);
