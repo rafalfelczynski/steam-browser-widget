@@ -2,7 +2,7 @@ QT       += core gui network sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG += c++11
+CONFIG += c++latest
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -16,31 +16,29 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    Controller.cpp \
-    DBService.cpp \
-    JsonParser.cpp \
-    Model.cpp \
-    Popup.cpp \
-    PopupList.cpp \
-    SearcherView.cpp \
-    SteamConnector.cpp \
-    main.cpp
+	Controllers/Controller.cpp \
+	Models/Game.cpp \
+	Models/Model.cpp \
+	Persistence/GameRepository.cpp \
+	Services/JsonParser.cpp \
+	Services/SteamConnector.cpp \
+	Views/Popup.cpp \
+	Views/PopupList.cpp \
+	Views/SearcherView.cpp \
+	Views/Window.cpp \
+	main.cpp
 
 HEADERS += \
-    Controller.h \
-    DBService.h \
-    JsonParser.h \
-    Model.h \
-    Popup.h \
-    PopupList.h \
-    SearcherView.h \
-    SteamConnector.h \
-    Tetrad.h \
-    Triple.h
-
-
-TRANSLATIONS += \
-    QtSteamBrowser_pl_PL.ts
+	Controllers/Controller.h \
+	Models/Game.h \
+	Models/Model.h \
+	Persistence/GameRepository.h \
+	Services/JsonParser.h \
+	Services/SteamConnector.h \
+	Views/Popup.h \
+	Views/PopupList.h \
+	Views/SearcherView.h \
+	Views/Window.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -53,6 +51,6 @@ DISTFILES += \
 	images/heart.png
 
 RESOURCES += \
-	res.qrc \
+	res.qrc
 
 FORMS +=

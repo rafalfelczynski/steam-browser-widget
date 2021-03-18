@@ -7,8 +7,8 @@
 #include <QComboBox>
 #include <QList>
 #include <QThread>
-#include <Triple.h>
 #include <QLabel>
+#include "Models/Game.h"
 
 const float WINDOW_WIDTH = 350;
 const float WINDOW_HEIGHT = 100;
@@ -20,29 +20,28 @@ class Popup : public QWidget
 	Q_OBJECT
 public:
 	explicit Popup(QWidget *parent = nullptr);
-	~Popup();
 	void show();
-	void refreshGames(QList<QPair<int,QString>>* gamesNames);
+	void refreshGames(const QVector<App> &gamesNames);
 	void changeEvent(QEvent *event) override;
+
 private:
 	bool wasCreated;
-	QLabel *infoLbl;
-	QPushButton *okBtn;
-	QComboBox *letterBox;
-	QTextEdit *priceField;
-	QComboBox *gamesList;
-	QList<QPair<int, QString>> bins[26];
+	QLabel infoLbl;
+	QPushButton okBtn;
+	QComboBox letterBox;
+	QTextEdit priceField;
+	QComboBox gamesList;
+	QVector<App> bins[26];
 	void createLayout();
 	void addLetters();
-	void divideApps(QList<QPair<int,QString>>* gamesNames);
+	void divideApps(const QVector<App> &gamesNames);
 	void setAppsSubset();
-	QPair<int, int>* determineTaskbarGeom();
+	QPair<int, int> *determineTaskbarGeom();
 	QString priceStyleSheetChangeColor(const QString &color);
 private slots:
 	void okClicked();
 signals:
-	void subAddClicked(const QPair<int,double> &limit);
-
+	void subAddClicked(const QPair<int, double> &limit);
 };
 
 #endif // POPUP_H

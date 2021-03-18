@@ -2,21 +2,21 @@
 #define SEARCHER_H
 #include <QObject>
 #include <QString>
-#include <SearcherView.h>
-#include <SteamConnector.h>
-#include <Triple.h>
-#include <Tetrad.h>
+#include "Views/SearcherView.h"
+#include "Services/SteamConnector.h"
 #include <QHash>
-#include <Model.h>
+#include "Models/Model.h"
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QMessageBox>
+#include <QScopedPointer>
 
 const static QString APP_NAME = "Steam Browser";
 const static QString ORG_NAME = "widget-org";
 
-class Controller: public QObject{
+class Controller : public QObject
+{
 	Q_OBJECT
 public:
 	Controller();
@@ -26,9 +26,9 @@ public slots:
 	void quitClicked();
 
 private:
-	SearcherView *searcherView;
-	Model *model;
-	QNetworkAccessManager *netMan;
+	QScopedPointer<SearcherView> searcherView;
+	QScopedPointer<Model> model;
+	QScopedPointer<QNetworkAccessManager> netMan;
 	void start();
 private slots:
 	void connectionChecked(QNetworkReply *reply);
